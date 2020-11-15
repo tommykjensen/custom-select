@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Web Components</title>
+  <script src="select.js"></script>
+</head>
+
+<body>
+  <div style="width:200px;">
+    <my-select></my-select>
+  </div>
+
+  <script>
+    let select = document.querySelector('my-select');
+    select.setOptions = [
+      {
+        label: 'Option 1',
+        value: '1'
+      },
+      {
+        label: 'Option 2',
+        value: '2'
+      },
+      {
+        label: 'Option 3',
+        value: '3'
+      }
+    ];
+    select.addEventListener("selecteditem", (evt) => {
+      console.log('event fired', evt.detail);
+      console.log('evt.detail.label', evt.detail.label);
+      console.log('evt.detail.value', evt.detail.value);
+    }); 
+  </script>
+</body>
+
+</html>
