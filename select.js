@@ -3,7 +3,7 @@ class Select extends HTMLElement {
     super();
     this.options = [];
     this.isOpen = false;
-    this._selectedItem = "hhh";
+    this._idx = -1;
 
     this.attachShadow({ mode: "open" });
     this.isOpen = false;
@@ -16,7 +16,7 @@ class Select extends HTMLElement {
         left: 0;
         width: 100%;
         height: 100vh;
-        background: rgba(0, 0, 0, 0.0);
+        background: rgba(0,0,0,0);
         z-index: 10;
         opacity: 0;
         pointer-events: none;
@@ -53,8 +53,8 @@ class Select extends HTMLElement {
         font-size: 20px;
         font-weight: 300;
         color: #3b3b3b;
-        height: 60px;
-        line-height: 60px;
+        height: 30px;
+        line-height: 22px;
         background: #ffffff;
         cursor: pointer;
         border-width: 2px 0 2px 0;
@@ -91,7 +91,19 @@ class Select extends HTMLElement {
         font-size: 22px;
         font-weight: 300;
         color: #3b3b3b;
-        line-height: 60px;
+        line-height: 30px;
+        cursor: pointer;
+        transition: all 0.5s;
+      }
+
+      .custom-seperator {
+        position: relative;
+        display: block;
+        padding: 0 22px 0 22px;
+        font-size: 20px;
+        #font-weight: 300;
+        color: #3b3b3b;
+        line-height: 30px;
         cursor: pointer;
         transition: all 0.5s;
       }
@@ -145,7 +157,7 @@ class Select extends HTMLElement {
       }
     </style>
     <div id="backdrop"></div>
-    <div class="custom-select-wrapper">
+    <div class="custom-select-wrapper" tabindex=1>
     
       <div class="custom-select">
         <div class="custom-select__trigger"><span>Choose</span>
@@ -159,9 +171,8 @@ class Select extends HTMLElement {
 
     `;
 
-    this.shadowRoot
-      .querySelector(".custom-select-wrapper")
-      .addEventListener("click", function () {
+    this.shadowRoot.querySelector(".custom-select-wrapper").addEventListener("click", function (event) {
+      console.log(event);
         this.querySelector(".custom-select").classList.toggle("open");
         const backdrop = this.parentNode.querySelector("#backdrop");
         if (this.querySelector(".custom-select.open")) {
@@ -174,12 +185,42 @@ class Select extends HTMLElement {
       });
     const backdrop = this.shadowRoot.querySelector("#backdrop");
     backdrop.addEventListener("click", this._cancel.bind(this));
-    this.shadowRoot.addEventListener("keyup", function (event) {
-      console.log(event);
-    });
+    // this.shadowRoot.addEventListener("keyup", function (event) {
+    //   console.log(event);
+    // });
+  }
+
+  connectedCallback() {
+    this._offKeyup = on(this, 'keyup', evt => {
+      this.shadowRoot.querySelector(".custom-select").classList.toggle("open");
+      const backdrop = this.shadowRoot.querySelector("#backdrop");
+      if (evt.key == 'Tab') {
+        if (this.shadowRoot.querySelector(".custom-select.open")) {
+          backdrop.style.opacity = 1;
+          backdrop.style.pointerEvents = "all";
+        } else {
+          // backdrop.style.opacity = 0;
+          // backdrop.style.pointerEvents = "none";
+        }
+      } else if (evt.key == 'ArrowDown') {
+        this._idx++;
+        if ( this._idx > this.options.length ) {
+          this._idx = 0;
+        }        
+      } else if (evt.key == 'ArrowUp') {
+        this._idx--;
+        if ( this._idx < 0  ) {
+          this._idx = this.options.length;
+        }
+      }
+      console.log('connectedCallback',evt);
+      console.log('this._idx',this._idx);
+      evt.stopPropagation();
+    })
   }
 
   _cancel(event) {
+    console.log('_cancel', event);
     this.shadowRoot.querySelector(".custom-select").classList.toggle("open");
     const backdrop = this.shadowRoot.querySelector("#backdrop");
     backdrop.style.opacity = 0;
@@ -189,6 +230,7 @@ class Select extends HTMLElement {
   }
 
   set setOptions(options) {
+    var idx =2;
     this.options = options;
     const element = this.shadowRoot.querySelector(".custom-options");
     element.textContent = "";
@@ -198,54 +240,64 @@ class Select extends HTMLElement {
       wrapper.setAttribute("data-value", o.value);
       wrapper.setAttribute("data-label", o.label);
       wrapper.textContent = o.label;
+      wrapper.tabIndex = idx;
+      idx++;
 
-      for (const option of this.shadowRoot.querySelectorAll(".custom-option")) {
-        option.addEventListener('click', function(event) {
-            if (!this.classList.contains('selected')) {
-                if (this.parentNode.querySelector('.custom-option.selected')) {
-                  this.parentNode.querySelector('.custom-option.selected').classList.remove('selected');
-                }
-                this.classList.add('selected');
-                this.closest('.custom-select').querySelector('.custom-select__trigger span').textContent = this.textContent;
-                const selectedEvent = new CustomEvent("selecteditem", {
-                  bubbles: true,
-                  composed: true,
-                  detail: this.dataset,
-                });
-                event.target.dispatchEvent(selectedEvent);
-                const backdrop = this.parentNode.parentNode.parentNode.parentNode.querySelector(
-                  "#backdrop"
-                );
-                backdrop.style.opacity = 0;
-                backdrop.style.pointerEvents = "none";
-            }
-        })
-      }
+      // for (const option of this.shadowRoot.querySelectorAll(".custom-option")) {
+      //   option.addEventListener('click', function(event) {
+      //       if (!this.classList.contains('selected')) {
+      //           if (this.parentNode.querySelector('.custom-option.selected')) {
+      //             this.parentNode.querySelector('.custom-option.selected').classList.remove('selected');
+      //           }
+      //           this.classList.add('selected');
+      //           this.closest('.custom-select').querySelector('.custom-select__trigger span').textContent = this.textContent;
+      //           const selectedEvent = new CustomEvent("selecteditem", {
+      //             bubbles: true,
+      //             composed: true,
+      //             detail: this.dataset,
+      //           });
+      //           event.target.dispatchEvent(selectedEvent);
+      //           const backdrop = this.parentNode.parentNode.parentNode.parentNode.querySelector(
+      //             "#backdrop"
+      //           );
+      //           backdrop.style.opacity = 0;
+      //           backdrop.style.pointerEvents = "none";
+      //       }
+      //   })
+      // }
 
-      // wrapper.addEventListener("click", function (event) {
-      //   console.log(this.dataset);
-      //   if (!this.classList.contains("selected")) {
-      //     this.classList.add("selected");
-      //     this.closest(".custom-select").querySelector(
-      //       ".custom-select__trigger span"
-      //     ).textContent = this.textContent;
-      //     const selectedEvent = new CustomEvent("selecteditem", {
-      //       bubbles: true,
-      //       composed: true,
-      //       detail: this.dataset,
-      //     });
-      //     event.target.dispatchEvent(selectedEvent);
-      //     const backdrop = this.parentNode.parentNode.parentNode.parentNode.querySelector(
-      //       "#backdrop"
-      //     );
-      //     backdrop.style.opacity = 0;
-      //     backdrop.style.pointerEvents = "none";
-      //   }
-      // });
+      wrapper.addEventListener("click", function (event) {
+        console.log(this.dataset);
+        if (!this.classList.contains("selected")) {
+          if (this.parentNode.querySelector('.custom-option.selected')) {
+            this.parentNode.querySelector('.custom-option.selected').classList.remove('selected');
+          }
+          this.classList.add("selected");
+          this.closest(".custom-select").querySelector(".custom-select__trigger span").textContent = this.textContent;
+          const selectedEvent = new CustomEvent("selecteditem", {
+            bubbles: true,
+            composed: true,
+            detail: this.dataset,
+          });
+          event.target.dispatchEvent(selectedEvent);
+          const backdrop = this.parentNode.parentNode.parentNode.parentNode.querySelector(
+            "#backdrop"
+          );
+          backdrop.style.opacity = 0;
+          backdrop.style.pointerEvents = "none";
+        }
+      });
 
       element.appendChild(wrapper);
     }
   }
+}
+
+function on(el, evt, cb) {
+    el.addEventListener(evt,cb);
+    return () => {
+      el.removeEventListener(evt, cb)
+    }
 }
 
 customElements.define("my-select", Select);
