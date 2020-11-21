@@ -189,14 +189,10 @@ class Select extends HTMLElement {
       });
     const backdrop = this.shadowRoot.querySelector("#backdrop");
     backdrop.addEventListener("click", this._cancel.bind(this));
-    // this.shadowRoot.addEventListener("keyup", function (event) {
-    //   console.log(event);
-    // });
   }
 
   connectedCallback() {
     this._offKeyup = on(this, "keyup", (evt) => {
-      // this.shadowRoot.querySelector(".custom-select").classList.toggle("open");
       const backdrop = this.shadowRoot.querySelector("#backdrop");
       if (evt.key == "Tab") {
         this.shadowRoot.querySelector(".custom-select").classList.toggle("open");
@@ -214,15 +210,7 @@ class Select extends HTMLElement {
         if (this._idx < 0) {
           this._idx = this.options.length - 1;
         }
-      } else if (evt.key == "Enter") {
-        console.log("this._idx", this._idx);
-        console.log("this._lastidx", this._lastidx);
-      }
-
-      console.log("connectedCallback", evt);
-      // console.log('this._idx',this._idx);
-      // console.log('this._lastidx',this._lastidx);
-
+      } 
       for (const option of this.shadowRoot.querySelectorAll(".custom-option")) {
         option.classList.remove("selected");
         if (option.dataset.idx == this._idx) {
@@ -254,7 +242,6 @@ class Select extends HTMLElement {
   }
 
   _cancel(event) {
-    console.log("_cancel", event);
     this.shadowRoot.querySelector(".custom-select").classList.toggle("open");
     const backdrop = this.shadowRoot.querySelector("#backdrop");
     backdrop.style.opacity = 0;
@@ -275,31 +262,7 @@ class Select extends HTMLElement {
       wrapper.setAttribute("data-label", o.label);
       wrapper.setAttribute("data-idx", idx);
       wrapper.textContent = o.label;
-      // wrapper.tabIndex = idx;
       idx++;
-
-      // for (const option of this.shadowRoot.querySelectorAll(".custom-option")) {
-      //   option.addEventListener('click', function(event) {
-      //       if (!this.classList.contains('selected')) {
-      //           if (this.parentNode.querySelector('.custom-option.selected')) {
-      //             this.parentNode.querySelector('.custom-option.selected').classList.remove('selected');
-      //           }
-      //           this.classList.add('selected');
-      //           this.closest('.custom-select').querySelector('.custom-select__trigger span').textContent = this.textContent;
-      //           const selectedEvent = new CustomEvent("selecteditem", {
-      //             bubbles: true,
-      //             composed: true,
-      //             detail: this.dataset,
-      //           });
-      //           event.target.dispatchEvent(selectedEvent);
-      //           const backdrop = this.parentNode.parentNode.parentNode.parentNode.querySelector(
-      //             "#backdrop"
-      //           );
-      //           backdrop.style.opacity = 0;
-      //           backdrop.style.pointerEvents = "none";
-      //       }
-      //   })
-      // }
 
       wrapper.addEventListener("click", function (event) {
         console.log(this.dataset);
@@ -319,31 +282,6 @@ class Select extends HTMLElement {
           backdrop.style.opacity = 0;
           backdrop.style.pointerEvents = "none";
         }
-      });
-      wrapper.addEventListener("keyup", function (event) {
-        if (event.key == "Enter") {
-          console.log(this.dataset);
-          
-        }
-
-        // if (!this.classList.contains("selected")) {
-        //   if (this.parentNode.querySelector('.custom-option.selected')) {
-        //     this.parentNode.querySelector('.custom-option.selected').classList.remove('selected');
-        //   }
-        //   this.classList.add("selected");
-        //   this.closest(".custom-select").querySelector(".custom-select__trigger span").textContent = this.textContent;
-        //   const selectedEvent = new CustomEvent("selecteditem", {
-        //     bubbles: true,
-        //     composed: true,
-        //     detail: this.dataset,
-        //   });
-        //   event.target.dispatchEvent(selectedEvent);
-        //   const backdrop = this.parentNode.parentNode.parentNode.parentNode.querySelector(
-        //     "#backdrop"
-        //   );
-        //   backdrop.style.opacity = 0;
-        //   backdrop.style.pointerEvents = "none";
-        // }
       });
 
       element.appendChild(wrapper);
